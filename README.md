@@ -1,37 +1,31 @@
 ## spark-train
+
+### 目录结构说明
+
+  Accumulator：案例一代码
+  Broadcast：案例二代码
+  MultipleOutput：案例三代码
+  data：测试数据
+
 ### 案例一：Spark Accumulator的使用
 
 * 需求
 
-1. 使用Spark Accumulators完成Job的数据量处理
-2. 统计emp表中NULL出现的次数以及正常数据的条数 & 打印正常数据的信息
+  使用Accumulators统计emp表中NULL出现的次数以及正常数据的条数 & 打印正常数据的信息
 
 * 数据
 
-  7369	SMITH	CLERK	7902	1980-12-17	800.00		20</br>
-  7499	ALLEN	SALESMAN	7698	1981-2-20	1600.00	300.00	30</br>
-  7521	WARD	SALESMAN	7698	1981-2-22	1250.00	500.00	30</br>
-  7566	JONES	MANAGER	7839	1981-4-2	2975.00		20</br>
-  7654	MARTIN	SALESMAN	7698	1981-9-28	1250.00	1400.00	30</br>
-  7698	BLAKE	MANAGER	7839	1981-5-1	2850.00		30</br>
-  7782	CLARK	MANAGER	7839	1981-6-9	2450.00		10</br>
-  7788	SCOTT	ANALYST	7566	1987-4-19	3000.00		20</br>
-  7839	KING	PRESIDENT		1981-11-17	5000.00		10</br>
-  7844	TURNER	SALESMAN	7698	1981-9-8	1500.00	0.00	30</br>
-  7876	ADAMS	CLERK	7788	1987-5-23	1100.00		20</br>
-  7900	JAMES	CLERK	7698	1981-12-3	950.00		30</br>
-  7902	FORD	ANALYST	7566	1981-12-3	3000.00		20</br>
-  7934	MILLER	CLERK	7782	1982-1-23	1300.00		10</br>
+  参照/data/emp1.txt
 
-* 遇到的坑
+* 遇到的坑 & 解决方法
 
-	现象描述：
+	现象描述 & 原因分析：
   
 	我们都知道，spark中的一系列transform操作会构成一串长的任务链，此时就需要通过一个action操作来触发；
 	accumulator也是一样的，只有当action操作执行时，才会触发accumulator的执行；
-	因此在一个action操作之前，我们调用accumulator的value方法是无法查看其数值的，肯定是没有任何变化的
-	所以在对normalData进行foreach操作之后，即action操作之后，我们会发现累加器的数值就变成了11
-	之后，我们对normalData再进行一次count操作之后，即又一次的action操作之后，其实这时候，又去执行了一次前面的transform操作
+	因此在一个action操作之前，我们调用accumulator的value方法是无法查看其数值的，肯定是没有任何变化的；
+	所以在对normalData进行foreach操作之后，即action操作之后，我们会发现累加器的数值就变成了11；
+	之后，我们对normalData再进行一次count操作之后，即又一次的action操作之后，其实这时候，又去执行了一次前面的transform操作；
 	因此累加器的值又增加了11，变成了22
 	
   解决办法：
@@ -49,4 +43,29 @@
 
 * 数据
 
-  参照案例一的emp表
+  参照/data/emp1.txt
+
+### 案例三：多目录输出 & 作业重跑
+
+* 需求
+  
+  1. 按照分区信息进行多目录输出，每个分区下输出一个文件
+  2. 在需求1的基础上，在某分区目录下输出多个文件
+  3. 在需求2的基础上，实现数据的采样，获取造成数据倾斜的key
+  4. 完成作业的重跑 & 对不同的数据进行追加
+
+* 数据
+  
+  需求1、需求2参照/data/emp1.txt
+  需求3参照/data/emp3.txt
+  需求4参照/data/emp1.txt emp2.txt
+
+* 核心思路
+
+  1. 实现需求1的核心在于继承MultipleTextOutputFormat类，并重写generateFileNameForKeyValue与generateActualKey
+     generateFileNameForKeyValue保证了按分区信息进行多目录输出
+     generateActualKey保证了不将分区信息写入文件
+  2. 实现需求2的核心在于巧妙的使用union算子
+  3. 实现需求3的核心在于采样，spark为我们提供了算子sample
+  4. 实现需求4的核心在于使用hadoop api中的rename方法，实现对新文件的追加、老文件的删除(即重跑机制)
+     需求4为该案例核心，具体思路见代码中注释
