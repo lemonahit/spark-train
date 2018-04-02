@@ -93,13 +93,13 @@
 
 * 需求
 
- HDFS路径：
+  HDFS路径：
 
- /spark/emp/temp/201711112025/d=20171111/h=20/_SUCCESS  空文件</br>
- /spark/emp/temp/201711112025/d=20171111/h=20/part-r-00000-6ba69620-ba52-4cb1-9ea0-6634ae0e16bc.txt</br>
- /spark/emp/temp/201711112025/d=20171111/h=20/part-r-00001-6ba69620-ba52-4cb1-9ea0-6634ae0e16bc.txt</br>
- ...
- ===>
- /spark/emp/data/d=171111/h=20/17111125-01.txt</br>
- /spark/emp/data/d=171111/h=20/17111125-02.txt</br>
- ...
+  /spark/emp/temp/201711112025/d=20171111/h=20/_SUCCESS  空文件</br>
+  /spark/emp/temp/201711112025/d=20171111/h=20/part-r-00000-6ba69620-ba52-4cb1-9ea0-6634ae0e16bc.txt</br>
+  /spark/emp/temp/201711112025/d=20171111/h=20/part-r-00001-6ba69620-ba52-4cb1-9ea0-6634ae0e16bc.txt</br>
+  .../br>
+  ===>/br>
+  /spark/emp/data/d=171111/h=20/17111125-01.txt</br>
+  /spark/emp/data/d=171111/h=20/17111125-02.txt</br>
+  .../br>
