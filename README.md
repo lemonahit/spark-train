@@ -3,11 +3,9 @@
 ### 目录结构说明
 
   spark-train/Accumulator	案例一代码
-  
-  spark-train/Broadcast		案例二代码 
-  
+  spark-train/Broadcast		案例二代码   
   spark-train/MultipleOutput	案例三代码
-  
+  spark-train/SmallFile 案例四代码 
   spark-train/data		测试数据
   
 
@@ -19,7 +17,7 @@
 
 * 数据
 
-  参照/data/emp1.txt
+  参照spark-train/data/emp1.txt
 
 * 遇到的坑 & 解决方法
 
@@ -43,13 +41,13 @@
 
 * 需求
 
-  使用Spark实现mapjoin & commonjoin
+  使用Spark实现MapJoin & CommonJoin
 
 * 数据
 
-  参照/data/emp1.txt
+  参照spark-train/data/emp1.txt
 
-### 案例三：多目录输出 & 作业重跑
+### 案例三：多目录输出  & 作业重跑
 
 * 需求
 
@@ -61,19 +59,47 @@
 
 * 数据
   
-  需求1、需求2参照/data/emp1.txt
+  需求1、需求2参照spark-train/data/emp1.txt
   
-  需求3参照/data/emp3.txt
+  需求3参照spark-train/data/emp3.txt
   
-  需求4参照/data/emp1.txt emp2.txt
+  需求4参照spark-train/data/emp1.txt emp2.txt
   
 
 * 核心思路
 
   1. 实现需求1的核心在于继承MultipleTextOutputFormat类，并重写generateFileNameForKeyValue与generateActualKey  
-     generateFileNameForKeyValue保证了按分区信息进行多目录输出   
-     generateActualKey保证了不将分区信息写入文件    
+     - generateFileNameForKeyValue保证了按分区信息进行多目录输出   
+     - generateActualKey保证了不将分区信息写入文件    
   2. 实现需求2的核心在于巧妙的使用union算子 
   3. 实现需求3的核心在于采样，spark为我们提供了算子sample  
   4. 实现需求4的核心在于使用hadoop api中的rename方法，实现对新文件的追加、老文件的删除(即重跑机制)  
      需求4为该案例核心，具体思路见代码中注释
+
+### 案例四：小文件合并
+
+* 需求
+
+  对系统中频繁产生的小文件进行合并，以此来降低NameNode所在机器的压力
+
+* 核心思路
+  
+  1. 合并前后保证数据不丢失，因此需要在合并前后统计所要合并小文件的字节大小
+     对于文件可以统计字节大小，但是对于采用了压缩的文件，则需要统计数据条数
+  2. 支持重跑，设计思路参考案例三的需求4
+  3. 对于小文件合并之后的量为多少，需要有个机制去计算
+
+### 案例五：Scala操作HDFS文件系统
+
+* 需求
+
+ HDFS路径：
+
+ /spark/emp/temp/201711112025/d=20171111/h=20/_SUCCESS  空文件</br>
+ /spark/emp/temp/201711112025/d=20171111/h=20/part-r-00000-6ba69620-ba52-4cb1-9ea0-6634ae0e16bc.txt</br>
+ /spark/emp/temp/201711112025/d=20171111/h=20/part-r-00001-6ba69620-ba52-4cb1-9ea0-6634ae0e16bc.txt</br>
+ ...
+ ===>
+ /spark/emp/data/d=171111/h=20/17111125-01.txt</br>
+ /spark/emp/data/d=171111/h=20/17111125-02.txt</br>
+ ...
