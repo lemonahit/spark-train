@@ -16,3 +16,15 @@
   /spark/emp/data/d=171111/h=20/17111125-02.txt
   ...
   ```
+
+* 代码版本
+
+  **v1.0**
+  
+  HDFSUtil.scala
+  
+  ScalaHDFSOp.scala
+  
+  **v2.0**
+  
+  ScalaChanegFile.scala
